@@ -1,11 +1,12 @@
 package com.chilltouch.fieldtracker
 
 import android.Manifest
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.location.LocationManager
-import android.provider.Settings
 import android.support.design.widget.NavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
@@ -35,7 +36,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) +
                     ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) != PackageManager.PERMISSION_GRANTED) {
         } else {
-            locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60, 500f, locationListener)
+            var distance = getSavedData(DataStoreConstants.DISTANCE_TO_UPDATE_IN_METERS_KEY, DataStoreConstants.DISTANCE_TO_UPDATE_IN_METERS_STR).toFloat()
+            var time = getSavedData(DataStoreConstants.TIME_TO_UPDATE_IN_SEC_KEY, DataStoreConstants.DISTANCE_TO_UPDATE_IN_METERS_STR).toLong()
+
+            locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, time, distance, locationListener)
         }
     }
 
@@ -48,7 +52,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var navigationView : NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
-        var toggle : ActionBarDrawerToggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        var toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer?.addDrawerListener(toggle)
 
         toggle.syncState()
@@ -78,6 +82,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer?.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    fun saveData(key: String, value: String){
+        var sharedPreferences = getSharedPreferences(DataStoreConstants.SHARED_PREFS_KEY, Context.MODE_PRIVATE)
+        var editor: SharedPreferences.Editor = sharedPreferences.edit()
+
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun getSavedData(key: String, default: String): String {
+        var sharedPreferences = getSharedPreferences(DataStoreConstants.SHARED_PREFS_KEY, Context.MODE_PRIVATE)
+
+        var result = sharedPreferences.getString(key, default)
+
+        return result
     }
 
 }
