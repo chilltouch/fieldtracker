@@ -5,9 +5,9 @@ import android.location.LocationListener
 import android.os.Bundle
 import android.util.Log
 
-class CordinateListener : LocationListener {
+class CoordinateListener : LocationListener {
 
-    private val TAG = CordinateListener::class.qualifiedName
+    private val TAG = CoordinateListener::class.qualifiedName
 
     override fun onLocationChanged(loc: Location?) {
         var longtitude = loc?.longitude
